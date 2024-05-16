@@ -1,7 +1,26 @@
 import os
+import tkinter as tk
+from graphics import Window
+from tkinter import filedialog
 
-def create_generate_file():
-    root_dir = input("Input the relative path to dir containing resources: ")
+def select_source_directory(callback=None):
+    directory_path = filedialog.askdirectory(title="Select source directory")
+    if directory_path:
+        if callback:
+            callback(directory_path)
+        else:
+            print(f"Selected source: {directory_path}")
+
+def select_destination_directory(callback=None):
+    directory_path = filedialog.askdirectory(title="Select destintation directory")
+    if directory_path:
+        if callback:
+            callback(directory_path)
+        else:
+            print(f"Selected destination {directory_path}")
+
+def create_generate_file(source_directory):
+    root_dir = source_directory
     generate_file_path = input("Input the relative path for generate.go: ")
 
     file_exists = os.path.isfile(generate_file_path)
@@ -39,7 +58,13 @@ def create_generate_file():
     print(f"generate.go file updated at {generate_file_path}")
 
 def main():
-    create_generate_file()
+
+    screen_x = 800
+    screen_y = 600
+    win = Window(screen_x, screen_y)
+    win.create_button(lambda: select_source_directory(create_generate_file))
+    win.wait_for_close()
+    # create_generate_file()
 
 if __name__ == "__main__":
     main()
