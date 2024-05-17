@@ -3,25 +3,27 @@ import tkinter as tk
 from graphics import Window
 from tkinter import filedialog
 
-def select_source_directory(callback=None):
+current_step = "source"
+
+def select_source_directory():
+    global current_step
     directory_path = filedialog.askdirectory(title="Select source directory")
     if directory_path:
-        if callback:
-            callback(directory_path)
-        else:
-            print(f"Selected source: {directory_path}")
+        print(f"Source destination: {directory_path}")
+        current_step = "destination"
+        select_destination_directory(directory_path)
 
-def select_destination_directory(callback=None):
+def select_destination_directory(source):
+    global current_step
     directory_path = filedialog.askdirectory(title="Select destintation directory")
     if directory_path:
-        if callback:
-            callback(directory_path)
-        else:
-            print(f"Selected destination {directory_path}")
+        rel_path = directory_path + "/generate.go"
+        print(f"Destination directory: {rel_path}")
+        create_generate_file(source, rel_path)
 
-def create_generate_file(source_directory):
+def create_generate_file(source_directory, destination_directory):
     root_dir = source_directory
-    generate_file_path = input("Input the relative path for generate.go: ")
+    generate_file_path = destination_directory
 
     file_exists = os.path.isfile(generate_file_path)
     initial_content = ""
@@ -59,10 +61,15 @@ def create_generate_file(source_directory):
 
 def main():
 
-    screen_x = 800
-    screen_y = 600
+    screen_x = 400
+    screen_y = 300
     win = Window(screen_x, screen_y)
-    win.create_button(lambda: select_source_directory(create_generate_file))
+
+    if current_step == "source":
+        win.create_button(command=select_source_directory)
+    else:
+        win.create_button(command=select_destination_directory)
+
     win.wait_for_close()
     # create_generate_file()
 

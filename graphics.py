@@ -23,5 +23,5 @@ class Window:
         self.__running = False
 
     def create_button(self, command):
-        browse_button = tk.Button(self.__root, text="Browse", command=command)
+        browse_button = tk.Button(self.__root, text="Select", command=command)
         browse_button.pack(pady=20)
