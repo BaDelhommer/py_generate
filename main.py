@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 class GenerateTool:
     def __init__(self):
@@ -17,55 +17,64 @@ class GenerateTool:
         self.button.pack()
 
     def select_source_directory(self):
-        self.source_directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Select Source DIrectory")
-        if self.source_directory:
-            print(f"Source Directory: {self.source_directory}")
-            self.current_step = "destintation"
-            self.label.config(text="Select destination directory for generate.go:")
-            self.button.config(text="Select Destination Directory", command=self.select_destination_directory)
+        try:
+            self.source_directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Select Source DIrectory")
+            if self.source_directory:
+                print(f"Source Directory: {self.source_directory}")
+                self.current_step = "destintation"
+                self.label.config(text="Select destination directory for generate.go:")
+                self.button.config(text="Select Destination Directory", command=self.select_destination_directory)
+        except Exception as e:
+            messagebox.showerror("Error", f"an error occurred when selecting source directory {e}")
 
     def select_destination_directory(self):
-        self.destination_directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Select Destination DIrectory")
-        if self.destination_directory:
-            rel_path = os.path.join(self.destination_directory, "generate.go")
-            print(f"Destination directory{rel_path}")
-            self.create_generate_file(self.source_directory, rel_path)
+        try:
+            self.destination_directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Select Destination DIrectory")
+            if self.destination_directory:
+                rel_path = os.path.join(self.destination_directory, "generate.go")
+                print(f"Destination directory{rel_path}")
+                self.create_generate_file(self.source_directory, rel_path)
+        except Exception as e:
+            messagebox.showerror("Error", f"an error occurred when selecting destination directory {e}")
 
     def create_generate_file(self, source_directory, generate_file_path):
-        root_dir = source_directory
+        try:
+            root_dir = source_directory
 
-        file_exists = os.path.isfile(generate_file_path)
-        initial_content = ""
-        package_written = False
-        generate_commands_written = False
+            file_exists = os.path.isfile(generate_file_path)
+            initial_content = ""
+            package_written = False
+            generate_commands_written = False
 
-        if file_exists:
-            with open(generate_file_path, "r") as generate_file:
-                initial_content = generate_file.read()
-                package_written = "package main" in initial_content
-                generate_commands_written = "//go:generate" in initial_content
+            if file_exists:
+                with open(generate_file_path, "r") as generate_file:
+                    initial_content = generate_file.read()
+                    package_written = "package main" in initial_content
+                    generate_commands_written = "//go:generate" in initial_content
 
-        with open(generate_file_path, "a") as generate_file:
-            if not package_written:
-                generate_file.write("package main\n\n")
+            with open(generate_file_path, "a") as generate_file:
+                if not package_written:
+                    generate_file.write("package main\n\n")
 
-            for subdir, _, files in os.walk(root_dir):
-                for file in files:
-                    relative_path = os.path.relpath(os.path.join(subdir, file), start=os.path.dirname(generate_file_path))
-                    relative_path = relative_path.replace("\\", "/")
+                for subdir, _, files in os.walk(root_dir):
+                    for file in files:
+                        relative_path = os.path.relpath(os.path.join(subdir, file), start=os.path.dirname(generate_file_path))
+                        relative_path = relative_path.replace("\\", "/")
 
-                    if generate_commands_written:
-                        command_option = "bundled.go -append"
-                    else:
-                        command_option = "bundled.go"
-                        generate_commands_written = True
+                        if generate_commands_written:
+                            command_option = "bundled.go -append"
+                        else:
+                            command_option = "bundled.go"
+                            generate_commands_written = True
 
-                    command = f"//go:generate fyne bundle -o {command_option} ./{relative_path}\n"
-                    generate_file.write(command)
+                        command = f"//go:generate fyne bundle -o {command_option} ./{relative_path}\n"
+                        generate_file.write(command)
 
-        print(f"generate.go file updated at {generate_file_path}")
-        self.label.config(text="Process Complete!!")
-        self.button.config(text="Done", state=tk.DISABLED)
+            print(f"generate.go file updated at {generate_file_path}")
+            self.label.config(text="Process Complete!!")
+            self.button.config(text="Done", state=tk.DISABLED)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while generating generate.go {e}")
 
     def run(self):
         self.root.mainloop()
