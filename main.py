@@ -51,9 +51,8 @@ class GenerateTool:
 
             for subdir, _, files in os.walk(root_dir):
                 for file in files:
-                    absolute_path = os.path.join(subdir, file)
-                    relative_path = os.path.relpath(absolute_path, start=root_dir)
-                    relative_path = f"{relative_path.replace(os.sep, '/')}"
+                    relative_path = os.path.relpath(os.path.join(subdir, file), start=os.path.dirname(generate_file_path))
+                    relative_path = relative_path.replace("\\", "/")
 
                     if generate_commands_written:
                         command_option = "bundled.go -append"

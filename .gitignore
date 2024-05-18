@@ -1,3 +1,4 @@
+__pycache__/
 test_resources/
 test_fyne_app/
 generate.go
